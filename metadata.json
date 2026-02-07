@@ -1,0 +1,7 @@
+{
+  "name": "Explain My Letter",
+  "description": "Ultra-modern scanner that translates complex official letters into plain language and actionable tasks using AI.",
+  "requestFramePermissions": [
+    "camera"
+  ]
+}
