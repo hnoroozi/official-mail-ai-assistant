@@ -1,7 +1,7 @@
 
 import React, { useEffect, useState } from 'react';
-import { LetterAnalysis, SupportedLanguage } from '../types';
-import { analyzeLetter } from '../services/geminiService';
+import { LetterAnalysis, SupportedLanguage } from '../types.ts';
+import { analyzeLetter } from '../services/geminiService.ts';
 
 interface ProcessingProps {
   images: string[];

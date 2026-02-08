@@ -1,6 +1,6 @@
 
 import React, { useState, useMemo } from 'react';
-import { LetterItem, SupportedLanguage } from '../types';
+import { LetterItem, SupportedLanguage } from '../types.ts';
 
 interface LibraryProps {
   history: LetterItem[];

@@ -1,7 +1,7 @@
 
 import React, { useRef, useMemo } from 'react';
-import { LetterItem, SupportedLanguage } from '../types';
-import { translations } from '../translations';
+import { LetterItem, SupportedLanguage } from '../types.ts';
+import { translations } from '../translations.ts';
 
 interface HomeProps {
   onScan: () => void;

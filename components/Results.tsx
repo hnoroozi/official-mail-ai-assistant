@@ -1,10 +1,10 @@
 
 import React, { useState, useRef } from 'react';
-import { LetterAnalysis, UrgencyLevel, ReplyTemplate, SupportedLanguage } from '../types';
-import { generateSpeech, refineDraft } from '../services/geminiService';
-import { decodeBase64, decodeAudioData } from '../utils/audioUtils';
-import { translations } from '../translations';
-import { generateGoogleCalendarLink } from '../utils/calendarUtils';
+import { LetterAnalysis, UrgencyLevel, ReplyTemplate, SupportedLanguage } from '../types.ts';
+import { generateSpeech, refineDraft } from '../services/geminiService.ts';
+import { decodeBase64, decodeAudioData } from '../utils/audioUtils.ts';
+import { translations } from '../translations.ts';
+import { generateGoogleCalendarLink } from '../utils/calendarUtils.ts';
 
 interface ResultsProps {
   analysis: LetterAnalysis;
@@ -19,7 +19,6 @@ interface ResultsProps {
   onDelete?: () => void;
 }
 
-// Interface for VerifyChip props
 interface VerifyChipProps {
   text: string;
   id: string;
@@ -28,7 +27,6 @@ interface VerifyChipProps {
   onToggle: (id: string) => void;
 }
 
-// FIX: Properly type VerifyChip as React.FC to handle React-reserved props like 'key' correctly in TypeScript
 const VerifyChip: React.FC<VerifyChipProps> = ({ 
   text, 
   id, 
@@ -162,7 +160,6 @@ const Results: React.FC<ResultsProps> = ({
       </div>
 
       <div className="p-6 space-y-6">
-        {/* Main Card */}
         <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 space-y-4">
           <div className="flex items-center gap-2">
             <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border bg-indigo-50 text-indigo-600 border-indigo-100`}>
@@ -171,7 +168,6 @@ const Results: React.FC<ResultsProps> = ({
           </div>
           <h1 className="text-2xl font-black text-slate-900 leading-tight">{analysis.title}</h1>
           
-          {/* Urgency Meter */}
           <div className="bg-slate-50 p-4 rounded-2xl border border-slate-100">
             <div className="flex justify-between items-end mb-2">
               <span className="text-[10px] font-black uppercase tracking-widest text-slate-400">Urgency Level</span>
@@ -206,11 +202,9 @@ const Results: React.FC<ResultsProps> = ({
           </div>
         </div>
 
-        {/* Verification */}
         <div className="space-y-3">
            <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2">{t.verifyAll}</h3>
            <div className="flex flex-wrap gap-2">
-              {/* FIX: Use explicitly passed required props including verified status derived from state */}
               {fields.organizations.map((org, i) => <VerifyChip key={`org-${i}`} text={org} id={`org-${i}`} label="Sender" isVerified={verifiedFields.includes(`org-${i}`)} onToggle={onToggleVerification} />)}
               {fields.amounts.map((amt, i) => <VerifyChip key={`amt-${i}`} text={amt} id={`amt-${i}`} label="Amount" isVerified={verifiedFields.includes(`amt-${i}`)} onToggle={onToggleVerification} />)}
               {fields.reference_numbers.map((ref, i) => <VerifyChip key={`ref-${i}`} text={ref} id={`ref-${i}`} label="Ref #" isVerified={verifiedFields.includes(`ref-${i}`)} onToggle={onToggleVerification} />)}
@@ -218,7 +212,6 @@ const Results: React.FC<ResultsProps> = ({
            </div>
         </div>
 
-        {/* Deadlines Section */}
         {deadlines.length > 0 && (
           <div className="space-y-3">
             <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 px-2">Key Dates</h3>
@@ -246,7 +239,6 @@ const Results: React.FC<ResultsProps> = ({
           </div>
         )}
 
-        {/* Actions */}
         <div className="bg-white p-6 rounded-[32px] border border-slate-100 shadow-sm">
           <h3 className="text-[10px] font-black uppercase tracking-widest text-slate-400 mb-4">{t.requiredActions}</h3>
           <div className="space-y-3">
@@ -273,7 +265,6 @@ const Results: React.FC<ResultsProps> = ({
         </div>
       </div>
 
-      {/* Lightbox */}
       {showOriginal && (
         <div className="fixed inset-0 z-[200] bg-black flex flex-col animate-in fade-in duration-300">
            <header className="p-6 flex justify-between items-center text-white">

@@ -1,7 +1,7 @@
 
 import React from 'react';
-import { SupportedLanguage } from '../types';
-import { translations } from '../translations';
+import { SupportedLanguage } from '../types.ts';
+import { translations } from '../translations.ts';
 
 interface HelpProps {
   preferredLanguage: SupportedLanguage;
@@ -44,7 +44,6 @@ const Help: React.FC<HelpProps> = ({ preferredLanguage, onBack }) => {
       </header>
 
       <div className="space-y-4">
-        {/* About Section - Highlighted Card */}
         <div className="bg-gradient-to-br from-indigo-50 to-white border border-indigo-100 rounded-[32px] p-8 shadow-sm animate-in fade-in zoom-in duration-500">
            <div className={`flex items-center gap-3 mb-4 ${isRtl ? 'flex-row-reverse' : 'flex-row'}`}>
               <div className="w-10 h-10 bg-indigo-600 rounded-xl flex items-center justify-center text-white text-xl">✨</div>
@@ -55,7 +54,6 @@ const Help: React.FC<HelpProps> = ({ preferredLanguage, onBack }) => {
            </p>
         </div>
 
-        {/* Existing Help Sections */}
         {Object.entries(sections).map(([key, value]) => (
           <div 
             key={key} 
@@ -74,19 +72,6 @@ const Help: React.FC<HelpProps> = ({ preferredLanguage, onBack }) => {
             </div>
           </div>
         ))}
-
-        <div className="pt-10">
-          <div className="bg-indigo-600 rounded-[32px] p-8 text-white relative overflow-hidden shadow-xl shadow-indigo-100">
-            <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-10 -mt-10"></div>
-            <h3 className="text-xl font-bold mb-4">Still have questions?</h3>
-            <p className="text-sm text-indigo-100 leading-relaxed mb-6">
-              Our support team is here to help with any technical issues or feedback.
-            </p>
-            <button className="px-6 py-3 bg-white text-indigo-600 rounded-2xl font-bold text-xs shadow-lg active:scale-95 transition-all">
-              Contact Support
-            </button>
-          </div>
-        </div>
       </div>
     </div>
   );

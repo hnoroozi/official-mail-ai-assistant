@@ -1,7 +1,7 @@
 
 import React, { useState, useEffect, useRef } from 'react';
-import { LetterAnalysis, Message, SupportedLanguage } from '../types';
-import { createLetterChat } from '../services/geminiService';
+import { LetterAnalysis, Message, SupportedLanguage } from '../types.ts';
+import { createLetterChat } from '../services/geminiService.ts';
 
 interface ChatProps {
   analysis: LetterAnalysis;
@@ -19,8 +19,6 @@ const Chat: React.FC<ChatProps> = ({ analysis, preferredLanguage, onBack }) => {
   useEffect(() => {
     chatSessionRef.current = createLetterChat(analysis, preferredLanguage);
     
-    // Initial greeting in target language handled by AI via the first message prompt logic usually,
-    // but here we force the initial state for consistency.
     const welcome: Message = {
       id: 'welcome',
       role: 'model',
@@ -75,7 +73,6 @@ const Chat: React.FC<ChatProps> = ({ analysis, preferredLanguage, onBack }) => {
 
   return (
     <div className="flex flex-col h-screen bg-slate-50">
-      {/* Header */}
       <header className="bg-white border-b border-slate-100 px-6 py-4 flex items-center justify-between shrink-0 shadow-sm z-10">
         <div className="flex items-center gap-4 min-w-0">
           <button onClick={onBack} className="p-2 -ml-2 text-slate-400 hover:text-slate-900 transition-colors">
@@ -93,7 +90,6 @@ const Chat: React.FC<ChatProps> = ({ analysis, preferredLanguage, onBack }) => {
         </div>
       </header>
 
-      {/* Message List */}
       <div 
         ref={scrollRef}
         className="flex-1 overflow-y-auto p-6 space-y-4"
@@ -123,7 +119,6 @@ const Chat: React.FC<ChatProps> = ({ analysis, preferredLanguage, onBack }) => {
         )}
       </div>
 
-      {/* Input Area */}
       <div className="p-6 bg-white border-t border-slate-100 pb-10">
         <div className="flex gap-2 items-center bg-slate-50 border border-slate-100 rounded-2xl px-4 py-2 focus-within:ring-2 focus-within:ring-blue-500/20 transition-all">
           <input 

@@ -1,6 +1,6 @@
 
 import React from 'react';
-import { AppScreen, SupportedLanguage } from '../types';
+import { AppScreen, SupportedLanguage } from '../types.ts';
 
 interface NavigationProps {
   currentScreen: AppScreen;

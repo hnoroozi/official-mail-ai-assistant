@@ -1,18 +1,18 @@
 
 import React, { useState, useEffect } from 'react';
-import { AppScreen, LetterItem, LetterAnalysis, SupportedLanguage, AppSettings } from './types';
-import Onboarding from './components/Onboarding';
-import Home from './components/Home';
-import CameraScan from './components/CameraScan';
-import Processing from './components/Processing';
-import Results from './components/Results';
-import Library from './components/Library';
-import Settings from './components/Settings';
-import Navigation from './components/Navigation';
-import Chat from './components/Chat';
-import Agenda from './components/Agenda';
-import Insights from './components/Insights';
-import Help from './components/Help';
+import { AppScreen, LetterItem, LetterAnalysis, SupportedLanguage, AppSettings } from './types.ts';
+import Onboarding from './components/Onboarding.tsx';
+import Home from './components/Home.tsx';
+import CameraScan from './components/CameraScan.tsx';
+import Processing from './components/Processing.tsx';
+import Results from './components/Results.tsx';
+import Library from './components/Library.tsx';
+import Settings from './components/Settings.tsx';
+import Navigation from './components/Navigation.tsx';
+import Chat from './components/Chat.tsx';
+import Agenda from './components/Agenda.tsx';
+import Insights from './components/Insights.tsx';
+import Help from './components/Help.tsx';
 
 const STORAGE_KEY = 'explain_my_letter_history';
 const LANG_KEY = 'explain_my_letter_lang';

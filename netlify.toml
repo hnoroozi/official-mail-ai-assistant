@@ -1,0 +1,15 @@
+
+[build]
+  functions = "netlify/functions"
+
+# Handle API calls to Netlify Functions
+[[redirects]]
+  from = "/api/*"
+  to = "/.netlify/functions/:splat"
+  status = 200
+
+# Handle SPA routing (React Router)
+[[redirects]]
+  from = "/*"
+  to = "/index.html"
+  status = 200

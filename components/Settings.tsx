@@ -1,7 +1,7 @@
 
 import React, { useState } from 'react';
-import { SupportedLanguage, LetterItem, AppSettings } from '../types';
-import { translations } from '../translations';
+import { SupportedLanguage, LetterItem, AppSettings } from '../types.ts';
+import { translations } from '../translations.ts';
 
 interface SettingsProps {
   onBack: () => void;
@@ -37,7 +37,6 @@ const Settings: React.FC<SettingsProps> = ({
   
   const languages: SupportedLanguage[] = ['English', 'Spanish', 'French', 'Arabic', 'Chinese', 'Persian'];
 
-  // Helper to get initials from userName
   const getInitials = (name: string) => {
     if (!name) return 'U';
     const parts = name.trim().split(/\s+/);
@@ -77,7 +76,6 @@ const Settings: React.FC<SettingsProps> = ({
       </header>
 
       <div className="space-y-8">
-        {/* Profile Section */}
         <div>
           <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-2">Profile</h3>
           <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm p-5">
@@ -92,7 +90,6 @@ const Settings: React.FC<SettingsProps> = ({
           </div>
         </div>
 
-        {/* Pro Status Card */}
         <div className="bg-gradient-to-br from-indigo-600 to-violet-700 rounded-[32px] p-6 text-white shadow-xl shadow-indigo-100 relative overflow-hidden group" dir="ltr">
           <div className="absolute top-0 right-0 w-32 h-32 bg-white/10 blur-3xl -mr-10 -mt-10 group-hover:scale-150 transition-transform duration-700"></div>
           <div className="relative z-10">
@@ -123,7 +120,6 @@ const Settings: React.FC<SettingsProps> = ({
           </div>
         </div>
 
-        {/* Language Section */}
         <div>
           <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-2">{t.nativeLang}</h3>
           <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm p-4">
@@ -146,7 +142,6 @@ const Settings: React.FC<SettingsProps> = ({
           </div>
         </div>
 
-        {/* Information & Help */}
         <div>
           <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-2">Info & Legal</h3>
           <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm divide-y divide-slate-50">
@@ -175,7 +170,6 @@ const Settings: React.FC<SettingsProps> = ({
           </div>
         </div>
 
-        {/* Security & Access */}
         <div>
           <h3 className="text-[10px] font-bold uppercase tracking-widest text-slate-400 mb-3 px-2">Security</h3>
           <div className="bg-white border border-slate-100 rounded-3xl overflow-hidden shadow-sm divide-y divide-slate-50">
@@ -209,7 +203,6 @@ const Settings: React.FC<SettingsProps> = ({
         </div>
       </div>
 
-      {/* Subscription Overlay */}
       {showSubscription && (
         <div className="fixed inset-0 z-[110] bg-slate-900/60 backdrop-blur-sm flex items-end justify-center animate-in fade-in duration-300" dir="ltr">
           <div className="w-full max-w-md bg-white rounded-t-[40px] p-8 pb-12 animate-in slide-in-from-bottom duration-500 shadow-2xl overflow-hidden flex flex-col max-h-[90vh]">
@@ -245,63 +238,11 @@ const Settings: React.FC<SettingsProps> = ({
                   <p className="text-center mt-6 text-[10px] text-rose-500 font-bold uppercase tracking-tight cursor-pointer hover:underline" onClick={() => setSubscriptionStep('CANCEL')}>Cancel Subscription</p>
                 </div>
               )}
-              {subscriptionStep === 'CHANGE_PLAN' && (
-                <div className="animate-in fade-in slide-in-from-right duration-300">
-                  <div className="flex items-center gap-3 mb-6">
-                    <button onClick={() => setSubscriptionStep('INFO')} className="p-2 -ml-2 text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg></button>
-                    <h2 className="text-2xl font-black text-slate-900">Select Plan</h2>
-                  </div>
-                  <div className="flex justify-center mb-8">
-                    <div className="bg-slate-100 p-1 rounded-2xl flex gap-1">
-                      <button onClick={() => setBillingCycle('monthly')} className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${billingCycle === 'monthly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>Monthly</button>
-                      <button onClick={() => setBillingCycle('yearly')} className={`px-6 py-2 rounded-xl text-xs font-bold transition-all ${billingCycle === 'yearly' ? 'bg-white text-slate-900 shadow-sm' : 'text-slate-400'}`}>Yearly <span className="text-[9px] text-emerald-500">-20%</span></button>
-                    </div>
-                  </div>
-                  <div className="space-y-4">
-                    <div className="p-6 border-2 border-slate-100 rounded-[32px] opacity-60">
-                      <div className="flex justify-between items-start mb-4">
-                        <div><h4 className="text-lg font-bold text-slate-900">Standard</h4><p className="text-xs text-slate-400">Basic support</p></div>
-                        <span className="text-lg font-black text-slate-900">$0</span>
-                      </div>
-                    </div>
-                    <div className="p-6 border-2 border-indigo-600 bg-indigo-50/50 rounded-[32px] relative">
-                      <div className="absolute top-4 right-4 bg-indigo-600 text-white text-[8px] font-black uppercase tracking-widest px-2 py-1 rounded-full">Current Plan</div>
-                      <div className="flex justify-between items-start mb-4">
-                        <div><h4 className="text-lg font-bold text-slate-900">Pro</h4><p className="text-xs text-slate-400">Unlimited power</p></div>
-                        <span className="text-lg font-black text-slate-900">{billingCycle === 'monthly' ? '$6.99' : '$5.83'}<span className="text-[10px] text-slate-400 font-medium">/mo</span></span>
-                      </div>
-                    </div>
-                  </div>
-                  <button onClick={() => setSubscriptionStep('INFO')} className="w-full py-4 mt-8 bg-slate-900 text-white rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all">Keep Current Plan</button>
-                </div>
-              )}
-              {subscriptionStep === 'PAYMENT' && (
-                <div className="animate-in fade-in slide-in-from-right duration-300">
-                  <div className="flex items-center gap-3 mb-6">
-                    <button onClick={() => setSubscriptionStep('INFO')} className="p-2 -ml-2 text-slate-400"><svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15 19l-7-7 7-7" /></svg></button>
-                    <h2 className="text-2xl font-black text-slate-900">Payment</h2>
-                  </div>
-                  <div className="mb-8 p-6 bg-slate-900 rounded-[32px] text-white shadow-xl">
-                    <p className="text-lg font-bold tracking-[0.2em] mb-4">•••• •••• •••• 4242</p>
-                  </div>
-                  <button onClick={() => setSubscriptionStep('INFO')} className="w-full py-4 mt-8 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all">Save Changes</button>
-                </div>
-              )}
-              {subscriptionStep === 'CANCEL' && (
-                <div className="animate-in fade-in slide-in-from-bottom duration-300 text-center">
-                  <h2 className="text-2xl font-black text-slate-900 mb-4">Wait, don't go!</h2>
-                  <div className="space-y-3">
-                    <button onClick={() => setSubscriptionStep('INFO')} className="w-full py-4 bg-indigo-600 text-white rounded-2xl font-bold text-sm shadow-xl active:scale-95 transition-all">Keep My Benefits</button>
-                    <button onClick={() => { alert("Simulated: Subscription canceled."); closeSubscription(); }} className="w-full py-4 bg-white text-rose-500 rounded-2xl font-bold text-sm border border-rose-100">Confirm Cancellation</button>
-                  </div>
-                </div>
-              )}
             </div>
           </div>
         </div>
       )}
 
-      {/* Reset Confirmation Overlay */}
       {showResetConfirm && (
         <div className="fixed inset-0 z-[120] bg-rose-600/10 backdrop-blur-md flex items-center justify-center p-6 animate-in fade-in duration-300">
            <div className="bg-white w-full max-w-sm rounded-[40px] p-8 shadow-2xl border border-rose-100 animate-in zoom-in duration-300 text-center">
@@ -314,7 +255,6 @@ const Settings: React.FC<SettingsProps> = ({
         </div>
       )}
 
-      {/* Legal Disclaimers Overlay - MULTI-LANGUAGE SUPPORT */}
       {showLegal && (
         <div className="fixed inset-0 z-[150] bg-white flex flex-col animate-in slide-in-from-bottom duration-500 overflow-hidden" dir={isRtl ? 'rtl' : 'ltr'}>
           <header className="px-6 py-6 border-b border-slate-100 flex justify-between items-center bg-white sticky top-0 shrink-0">
@@ -338,10 +278,6 @@ const Settings: React.FC<SettingsProps> = ({
                 </p>
               </section>
             ))}
-            
-            <div className="py-4 text-center">
-               <p className="text-[10px] text-slate-400 font-bold uppercase tracking-widest">End of Disclaimers</p>
-            </div>
           </div>
 
           <footer className="p-6 bg-white border-t border-slate-100 sticky bottom-0 shrink-0">
