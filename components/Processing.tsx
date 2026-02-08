@@ -11,96 +11,72 @@ interface ProcessingProps {
 }
 
 const Processing: React.FC<ProcessingProps> = ({ images, targetLanguage, onComplete, onError }) => {
-  const [step, setStep] = useState(0);
   const [progress, setProgress] = useState(0);
-
-  const steps = [
-    "Enhancing document clarity...",
-    "Extracting key text elements...",
-    "Interpreting official language...",
-    "Generating your actionable summary..."
-  ];
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   useEffect(() => {
     let isMounted = true;
 
     async function process() {
       try {
-        const minTime = 4000;
-        const startTime = Date.now();
-        
+        const interval = setInterval(() => {
+          setProgress(prev => {
+            if (prev < 95) return prev + Math.random() * 5;
+            return prev;
+          });
+        }, 400);
+
         const analysis = await analyzeLetter(images, targetLanguage);
         
-        const elapsed = Date.now() - startTime;
-        const wait = Math.max(0, minTime - elapsed);
-        
-        setTimeout(() => {
-          if (isMounted) onComplete(analysis);
-        }, wait);
-
-      } catch (err) {
-        console.error(err);
-        alert("Failed to analyze the letter. Please try again.");
-        if (isMounted) onError();
+        if (isMounted) {
+          clearInterval(interval);
+          setProgress(100);
+          setTimeout(() => onComplete(analysis), 500);
+        }
+      } catch (err: any) {
+        if (!isMounted) return;
+        setErrorMessage("Analysis failed. Please ensure the document is clear and try again.");
       }
     }
 
     process();
-
-    const interval = setInterval(() => {
-      setProgress(prev => (prev >= 100 ? 100 : prev + 1));
-    }, 40);
-
-    const stepInterval = setInterval(() => {
-      setStep(prev => (prev < steps.length - 1 ? prev + 1 : prev));
-    }, 1000);
-
-    return () => {
-      isMounted = false;
-      clearInterval(interval);
-      clearInterval(stepInterval);
-    };
+    return () => { isMounted = false; };
   }, []);
 
   return (
     <div className="h-full flex flex-col items-center justify-center p-8 bg-white text-center">
-      <div className="relative w-40 h-40 mb-10">
-        <svg className="w-full h-full -rotate-90">
-          <circle cx="80" cy="80" r="70" className="stroke-slate-100 fill-none" strokeWidth="8" />
-          <circle
-            cx="80"
-            cy="80"
-            r="70"
-            className="stroke-blue-600 fill-none transition-all duration-300 ease-out"
-            strokeWidth="8"
-            strokeDasharray={440}
-            strokeDashoffset={440 - (440 * progress) / 100}
-            strokeLinecap="round"
-          />
-        </svg>
-        <div className="absolute inset-0 flex flex-col items-center justify-center">
-          <span className="text-3xl font-bold text-slate-900">{progress}%</span>
-          <span className="text-[10px] font-semibold text-slate-400 uppercase tracking-widest">Processing</span>
+      {!errorMessage ? (
+        <div className="animate-in fade-in duration-700 w-full max-w-xs">
+          <div className="w-24 h-24 bg-indigo-600 rounded-[32px] flex items-center justify-center text-white mb-10 mx-auto shadow-2xl shadow-indigo-200 animate-pulse">
+            <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
+               <path strokeLinecap="round" strokeLinejoin="round" d="M19.5 14.25v-2.625a3.375 3.375 0 00-3.375-3.375h-1.5A1.125 1.125 0 0113.5 7.125v-1.5a3.375 3.375 0 00-3.375-3.375H8.25m0 12.75h7.5m-7.5 3H12M10.5 2.25H5.625c-.621 0-1.125.504-1.125 1.125v17.25c0 .621.504 1.125 1.125 1.125h12.75c.621 0 1.125-.504 1.125-1.125V11.25a9 9 0 00-9-9z" />
+            </svg>
+          </div>
+          <h2 className="text-3xl font-black text-slate-900 mb-3 tracking-tight">Analyzing...</h2>
+          <p className="text-slate-400 text-xs font-bold uppercase tracking-[0.2em] mb-12">Extracting critical data</p>
+          
+          <div className="w-full h-2 bg-slate-100 rounded-full overflow-hidden shadow-inner">
+             <div 
+               className="h-full bg-indigo-600 transition-all duration-500 ease-out" 
+               style={{ width: `${progress}%` }} 
+             />
+          </div>
         </div>
-      </div>
-
-      <div className="space-y-4 animate-in fade-in slide-in-from-bottom-2 duration-500">
-        <h2 className="text-2xl font-bold text-slate-900">Magical things happening</h2>
-        <p className="text-slate-500 min-h-[1.5rem] transition-all duration-300 italic">
-          {steps[step]}
-        </p>
-      </div>
-
-      <div className="mt-12 w-full max-w-xs p-4 bg-slate-50 rounded-2xl flex items-center gap-3 border border-slate-100">
-        <div className="w-8 h-8 rounded-full bg-blue-100 flex items-center justify-center text-blue-600">
-          <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M13 16h-1v-4h-1m1-4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-          </svg>
+      ) : (
+        <div className="animate-in zoom-in duration-300 max-w-xs">
+          <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
+            <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+              <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+            </svg>
+          </div>
+          <h2 className="text-xl font-black text-slate-900 mb-2">Something went wrong</h2>
+          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-medium">{errorMessage}</p>
+          <div className="flex flex-col gap-3">
+            <button onClick={() => window.location.reload()} className="py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all">Try Again</button>
+            <button onClick={onError} className="py-4 text-slate-400 font-bold text-xs uppercase tracking-widest">Back to Home</button>
+          </div>
         </div>
-        <p className="text-[10px] text-slate-500 text-left leading-tight font-medium uppercase tracking-tight">
-          Privacy Note: Processing is secure and encrypted. Documents are only used for your personal analysis.
-        </p>
-      </div>
+      )}
     </div>
   );
 };

@@ -51,17 +51,13 @@ const Home: React.FC<HomeProps> = ({ onScan, onUpload, history, preferredLanguag
     return { total, currency };
   }, [history]);
 
-  const activeReminders = history.flatMap(item => 
-    item.analysis.deadlines
-      .map((d, idx) => ({ ...d, item, deadlineIdx: idx, dateObj: new Date(d.date) }))
-      .filter(d => d.reminderSet && !isNaN(d.dateObj.getTime()) && d.dateObj >= new Date())
-  ).sort((a, b) => a.dateObj.getTime() - b.dateObj.getTime());
-
   const getCategoryIcon = (category: string) => {
     const cat = category.toLowerCase();
     if (cat.includes('tax')) return '💰';
     if (cat.includes('bank')) return '🏦';
     if (cat.includes('insurance')) return '🛡️';
+    if (cat.includes('health')) return '🏥';
+    if (cat.includes('government')) return '🏛️';
     return '📄';
   };
 
