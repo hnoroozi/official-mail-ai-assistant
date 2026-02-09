@@ -41,8 +41,8 @@ const VerifyChip: React.FC<VerifyChipProps> = ({
         isVerified ? 'bg-emerald-500 border-emerald-500 text-white shadow-sm' : 'bg-white border-slate-100 text-slate-600'
       }`}
     >
-      <span className="opacity-50 uppercase tracking-tighter">{label}:</span>
-      <span className="truncate max-w-[100px]">{text}</span>
+      <span className="opacity-50 uppercase tracking-tighter shrink-0">{label}:</span>
+      <span className="truncate max-w-[120px]">{text}</span>
     </button>
   );
 };
@@ -60,14 +60,10 @@ const Results: React.FC<ResultsProps> = ({
   onDelete 
 }) => {
   const t = translations[targetLanguage] || translations.English;
+  const isRtl = targetLanguage === 'Persian' || targetLanguage === 'Arabic';
   const [showTranslated, setShowTranslated] = useState(!!analysis.translation);
   const [showOriginal, setShowOriginal] = useState(false);
   
-  const [editingReply, setEditingReply] = useState<ReplyTemplate | null>(null);
-  const [draftBody, setDraftBody] = useState("");
-  const [isRefining, setIsRefining] = useState(false);
-
-  const [copied, setCopied] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [isLoadingAudio, setIsLoadingAudio] = useState(false);
 
@@ -78,7 +74,6 @@ const Results: React.FC<ResultsProps> = ({
   const urgencyLevel = (analysis.urgency?.level as UrgencyLevel) || UrgencyLevel.LOW;
   const deadlines = analysis.deadlines || [];
   const fields = analysis.extracted_fields;
-  const callQuestions = analysis.questions_to_ask_office || [];
 
   const activeSummaryParagraph = (showTranslated && analysis.translation) 
     ? analysis.translation.summary_paragraph 
@@ -95,18 +90,6 @@ const Results: React.FC<ResultsProps> = ({
     } else {
       navigator.clipboard.writeText(shareText);
       alert("Summary copied!");
-    }
-  };
-
-  const handleRefine = async (instruction: string) => {
-    setIsRefining(true);
-    try {
-      const refined = await refineDraft(draftBody, instruction);
-      setDraftBody(refined);
-    } catch (err) {
-      console.error(err);
-    } finally {
-      setIsRefining(false);
     }
   };
 
@@ -131,14 +114,12 @@ const Results: React.FC<ResultsProps> = ({
     } catch (err) { console.error(err); } finally { setIsLoadingAudio(false); }
   };
 
-  const phoneScript = `Hello, I'm calling about "${analysis.title}". My ref is ${fields.reference_numbers[0] || "[Ref]"}. I want to ask: ${callQuestions.join(' ')}`;
-
   return (
     <div className="bg-slate-50 min-h-full pb-32">
       <div className="bg-indigo-600 px-6 py-2 flex items-center justify-between text-[10px] text-white/80 font-black uppercase tracking-widest no-print">
         <div className="flex items-center gap-2">
           <span>{t.confidence}</span>
-          <div className="w-20 h-1 bg-white/20 rounded-full overflow-hidden">
+          <div className="w-16 h-1 bg-white/20 rounded-full overflow-hidden">
             <div className="h-full bg-white transition-all duration-1000" style={{ width: `${analysis.confidence_score}%` }} />
           </div>
           <span>{analysis.confidence_score}%</span>
@@ -147,7 +128,9 @@ const Results: React.FC<ResultsProps> = ({
       </div>
 
       <div className="sticky top-0 z-30 bg-white/80 backdrop-blur-md border-b border-slate-100 px-6 py-4 flex justify-between items-center no-print">
-        <button onClick={onBack} className="p-2 -ml-2 text-slate-400 hover:text-slate-900"><svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg></button>
+        <button onClick={onBack} className={`p-2 -ml-2 text-slate-400 hover:text-slate-900 ${isRtl ? 'rotate-180' : ''}`}>
+          <svg xmlns="http://www.w3.org/2000/svg" className="w-6 h-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M10 19l-7-7m0 0l7-7m-7 7h18" /></svg>
+        </button>
         <div className="flex items-center gap-2">
            {analysis.translation && (
             <div className="flex bg-slate-100 p-1 rounded-xl">
@@ -162,7 +145,7 @@ const Results: React.FC<ResultsProps> = ({
       <div className="p-6 space-y-6">
         <div className="bg-white p-6 rounded-[32px] shadow-sm border border-slate-100 space-y-4">
           <div className="flex items-center gap-2">
-            <span className={`text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border bg-indigo-50 text-indigo-600 border-indigo-100`}>
+            <span className="text-[9px] font-black uppercase tracking-widest px-2 py-0.5 rounded border bg-indigo-50 text-indigo-600 border-indigo-100">
               {analysis.category}
             </span>
           </div>
@@ -183,21 +166,15 @@ const Results: React.FC<ResultsProps> = ({
                <div className={`flex-1 h-full ${urgencyLevel === UrgencyLevel.MEDIUM ? 'bg-amber-500' : 'bg-amber-100'}`} />
                <div className={`flex-1 h-full ${urgencyLevel === UrgencyLevel.HIGH ? 'bg-rose-500' : 'bg-rose-100'}`} />
             </div>
-            {analysis.urgency.reasons.length > 0 && (
-              <div className="mt-3 flex flex-wrap gap-1">
-                {analysis.urgency.reasons.map((r, i) => (
-                  <span key={i} className="text-[9px] font-bold text-slate-500 bg-white border border-slate-100 px-2 py-0.5 rounded-full">
-                    {r}
-                  </span>
-                ))}
-              </div>
-            )}
           </div>
 
-          <div className="relative">
-            <p className="text-slate-600 leading-relaxed text-sm pr-12">{activeSummaryParagraph}</p>
-            <button onClick={handlePlaySummary} className={`absolute right-0 top-0 p-2 rounded-xl ${isPlaying ? 'bg-indigo-600 text-white shadow-lg' : 'bg-slate-50 text-indigo-600'}`}>
-              {isLoadingAudio ? <div className="w-5 h-5 border-2 border-indigo-600 border-t-transparent rounded-full animate-spin" /> : <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>}
+          <div className="relative group">
+            <p className={`text-slate-600 leading-relaxed text-sm ${isRtl ? 'pl-12' : 'pr-12'}`}>{activeSummaryParagraph}</p>
+            <button 
+              onClick={handlePlaySummary} 
+              className={`absolute top-0 p-2.5 rounded-xl transition-all shadow-sm ${isRtl ? 'left-0' : 'right-0'} ${isPlaying ? 'bg-indigo-600 text-white' : 'bg-slate-100 text-indigo-600 hover:bg-slate-200'}`}
+            >
+              {isLoadingAudio ? <div className="w-5 h-5 border-2 border-current border-t-transparent rounded-full animate-spin" /> : <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M15.536 8.464a5 5 0 010 7.072m2.828-9.9a9 9 0 010 12.728M5.586 15H4a1 1 0 01-1-1v-4a1 1 0 011-1h1.586l4.707-4.707C10.923 3.663 12 4.109 12 5v14c0 .891-1.077 1.337-1.707.707L5.586 15z" /></svg>}
             </button>
           </div>
         </div>
@@ -218,19 +195,17 @@ const Results: React.FC<ResultsProps> = ({
             {deadlines.map((d, i) => (
               <div key={i} className="bg-white p-4 rounded-[28px] border border-slate-100 flex items-center justify-between shadow-sm">
                 <div className="flex items-center gap-4">
-                  <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600">
-                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                      <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" />
-                    </svg>
+                  <div className="w-10 h-10 bg-indigo-50 rounded-2xl flex items-center justify-center text-indigo-600 shrink-0">
+                    <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2-2v12a2 2 0 002 2z" /></svg>
                   </div>
-                  <div>
-                    <p className="text-xs font-bold text-slate-900">{d.description}</p>
+                  <div className="min-w-0">
+                    <p className="text-xs font-bold text-slate-900 truncate">{d.description}</p>
                     <p className="text-[10px] font-bold text-slate-400 uppercase">{d.date}</p>
                   </div>
                 </div>
                 <button 
                   onClick={() => window.open(generateGoogleCalendarLink(analysis.title, d.date, d.description), '_blank')}
-                  className="p-3 bg-slate-50 text-indigo-600 rounded-xl active:scale-90 transition-all"
+                  className="p-3 bg-slate-50 text-indigo-600 rounded-xl active:scale-90 transition-all shrink-0"
                 >
                   <svg xmlns="http://www.w3.org/2000/svg" className="w-5 h-5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 4v16m8-8H4" /></svg>
                 </button>
@@ -246,7 +221,7 @@ const Results: React.FC<ResultsProps> = ({
               <button 
                 key={i} 
                 onClick={() => onToggleAction(i)}
-                className={`w-full flex items-start gap-4 p-4 rounded-2xl text-left transition-all ${action.completed ? 'bg-slate-50' : 'bg-slate-50 hover:bg-slate-100'}`}
+                className={`w-full flex items-start gap-4 p-4 rounded-2xl text-left transition-all ${isRtl ? 'text-right' : 'text-left'} ${action.completed ? 'bg-slate-50' : 'bg-slate-50 hover:bg-slate-100'}`}
               >
                 <div className={`mt-0.5 w-6 h-6 rounded-full border-2 flex items-center justify-center shrink-0 ${action.completed ? 'bg-emerald-500 border-emerald-500 text-white' : 'border-slate-200 bg-white'}`}>
                   {action.completed && <svg xmlns="http://www.w3.org/2000/svg" className="w-3 h-3" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth={3} d="M5 13l4 4L19 7" /></svg>}
@@ -258,7 +233,7 @@ const Results: React.FC<ResultsProps> = ({
         </div>
 
         <div className="space-y-3 no-print">
-          <button onClick={onAskQuestion} className="w-full py-4 bg-indigo-600 text-white rounded-[32px] font-bold text-sm shadow-xl shadow-indigo-100 flex items-center justify-center gap-2">
+          <button onClick={onAskQuestion} className="w-full py-4 bg-indigo-600 text-white rounded-[32px] font-bold text-sm shadow-xl shadow-indigo-100 flex items-center justify-center gap-2 active:scale-[0.98] transition-all">
             {t.askAssistant}
           </button>
           <button onClick={onDelete} className="w-full py-4 text-slate-300 font-black uppercase tracking-widest text-[10px]">{t.deleteDoc}</button>

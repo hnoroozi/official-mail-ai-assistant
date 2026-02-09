@@ -30,6 +30,8 @@ const App: React.FC = () => {
     familyVaultEnabled: false
   });
 
+  const isRtl = preferredLanguage === 'Persian' || preferredLanguage === 'Arabic';
+
   useEffect(() => {
     const savedHistory = localStorage.getItem(STORAGE_KEY);
     if (savedHistory) setHistory(JSON.parse(savedHistory));
@@ -201,7 +203,10 @@ const App: React.FC = () => {
   };
 
   return (
-    <div className="max-w-md mx-auto min-h-screen relative flex flex-col bg-white shadow-xl overflow-hidden print:max-w-none print:shadow-none">
+    <div 
+      className={`max-w-md mx-auto min-h-screen relative flex flex-col bg-white shadow-xl overflow-hidden print:max-w-none print:shadow-none ${isRtl ? 'text-right' : 'text-left'}`} 
+      dir={isRtl ? 'rtl' : 'ltr'}
+    >
       <main className="flex-1 overflow-y-auto pb-20 print:pb-0">
         {renderScreen()}
       </main>

@@ -12,40 +12,42 @@ interface ProcessingProps {
 
 const Processing: React.FC<ProcessingProps> = ({ images, targetLanguage, onComplete, onError }) => {
   const [progress, setProgress] = useState(0);
-  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const [errorDetails, setErrorDetails] = useState<{ message: string; code?: string } | null>(null);
 
   useEffect(() => {
     let isMounted = true;
+    const interval = setInterval(() => {
+      setProgress(prev => (prev < 90 ? prev + 2 : prev));
+    }, 200);
 
     async function process() {
       try {
-        const interval = setInterval(() => {
-          setProgress(prev => {
-            if (prev < 95) return prev + Math.random() * 5;
-            return prev;
-          });
-        }, 400);
-
         const analysis = await analyzeLetter(images, targetLanguage);
-        
         if (isMounted) {
-          clearInterval(interval);
           setProgress(100);
           setTimeout(() => onComplete(analysis), 500);
         }
       } catch (err: any) {
         if (!isMounted) return;
-        setErrorMessage("Analysis failed. Please ensure the document is clear and try again.");
+        clearInterval(interval);
+        console.error("Processing error:", err);
+        setErrorDetails({
+          message: err.message || "An unexpected error occurred during analysis.",
+          code: err.name
+        });
       }
     }
 
     process();
-    return () => { isMounted = false; };
-  }, []);
+    return () => {
+      isMounted = false;
+      clearInterval(interval);
+    };
+  }, [images, targetLanguage, onComplete]);
 
   return (
     <div className="h-full flex flex-col items-center justify-center p-8 bg-white text-center">
-      {!errorMessage ? (
+      {!errorDetails ? (
         <div className="animate-in fade-in duration-700 w-full max-w-xs">
           <div className="w-24 h-24 bg-indigo-600 rounded-[32px] flex items-center justify-center text-white mb-10 mx-auto shadow-2xl shadow-indigo-200 animate-pulse">
             <svg className="w-12 h-12" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2.5">
@@ -63,17 +65,36 @@ const Processing: React.FC<ProcessingProps> = ({ images, targetLanguage, onCompl
           </div>
         </div>
       ) : (
-        <div className="animate-in zoom-in duration-300 max-w-xs">
+        <div className="animate-in zoom-in duration-300 max-w-sm w-full">
           <div className="w-20 h-20 bg-rose-50 text-rose-500 rounded-3xl flex items-center justify-center mx-auto mb-6">
             <svg xmlns="http://www.w3.org/2000/svg" className="w-10 h-10" fill="none" viewBox="0 0 24 24" stroke="currentColor">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
             </svg>
           </div>
-          <h2 className="text-xl font-black text-slate-900 mb-2">Something went wrong</h2>
-          <p className="text-sm text-slate-500 mb-8 leading-relaxed font-medium">{errorMessage}</p>
+          <h2 className="text-xl font-black text-slate-900 mb-2">Analysis Failed</h2>
+          <p className="text-sm text-slate-500 mb-6 leading-relaxed px-4">
+            {errorDetails.message}
+          </p>
+          
+          {errorDetails.message.includes("MISSING_API_KEY") && (
+            <div className="bg-amber-50 p-4 rounded-2xl mb-8 text-xs text-amber-700 text-left border border-amber-100 leading-relaxed">
+              <strong>Tip:</strong> Log in to your Netlify dashboard, go to <b>Site settings > Environment variables</b>, and add <code>API_KEY</code> with your Gemini API key. Then redeploy your site.
+            </div>
+          )}
+
           <div className="flex flex-col gap-3">
-            <button onClick={() => window.location.reload()} className="py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all">Try Again</button>
-            <button onClick={onError} className="py-4 text-slate-400 font-bold text-xs uppercase tracking-widest">Back to Home</button>
+            <button 
+              onClick={() => window.location.reload()} 
+              className="py-4 bg-indigo-600 text-white rounded-2xl font-black text-sm shadow-xl active:scale-95 transition-all"
+            >
+              Try Again
+            </button>
+            <button 
+              onClick={onError} 
+              className="py-4 text-slate-400 font-bold text-xs uppercase tracking-widest"
+            >
+              Back to Home
+            </button>
           </div>
         </div>
       )}
